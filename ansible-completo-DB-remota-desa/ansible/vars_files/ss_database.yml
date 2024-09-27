@@ -1,0 +1,11 @@
+---
+database_host: "192.168.1.2:5432"
+database_admin_password: "secret"
+opmonitor_admin_password: ""
+serverconf_username: "serverconf"
+serverconf_password: "secret"
+opmonitor_username: "opmonitor"
+opmonitor_password: "secret"
+messagelog_username: "messagelog"
+messagelog_password: "secret"
+mask_local_postgresql: true

@@ -1,0 +1,4 @@
+---
+database_host: "192.168.1.2:5432"
+database_admin_password: "secret"
+mask_local_postgresql: true

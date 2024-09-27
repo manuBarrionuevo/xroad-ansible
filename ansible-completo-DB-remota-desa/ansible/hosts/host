@@ -1,0 +1,19 @@
+# Central Server (Ubuntu)
+[cs_servers]
+central-server.cordoba.gov.ar ansible_ssh_user=xrd-central ansible_become_password=CentralSecret
+
+# Security Server (Ubuntu)
+[ss_servers]
+security-server-provider.cordoba.gov.ar ansible_ssh_user=xrd-security ansible_become_password=SecuritySecret
+
+# Certification Authority, Time Stamping Authority y OCSP Service Server (Ubuntu)
+[ca_servers]
+ca-server.cordoba.gov.ar ansible_ssh_user=ca ansible_become_password=@Fito1905
+
+### vars ###
+
+[ss_servers:vars]
+variant=vanilla
+
+[all:vars]
+ansible_python_interpreter=/usr/bin/python3

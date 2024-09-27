@@ -1,0 +1,59 @@
+---
+- name: Limpiar completamente todos los servidores para una nueva instalación
+  hosts: all
+  become: yes
+  tasks:
+    - name: Detener todos los servicios de X-Road, PostgreSQL y Nginx
+      service:
+        name: "{{ item }}"
+        state: stopped
+      loop:
+        - nginx
+        - postgresql
+        - xroad-signer
+        - xroad-confclient
+        - xroad-nginx
+        - xroad-base
+        - xroad-centralserver
+        - xroad-securityserver
+      ignore_errors: yes
+
+    - name: Eliminar paquetes de X-Road, PostgreSQL y Nginx
+      apt:
+        name: "{{ item }}"
+        state: absent
+        purge: yes
+      loop:
+        - nginx
+        - postgresql
+        - xroad-base
+        - xroad-securityserver
+        - xroad-centralserver
+        - xroad-nginx
+        - xroad-signer
+        - xroad-confclient
+
+    - name: Eliminar directorios y archivos de configuración
+      file:
+        path: "{{ item }}"
+        state: absent
+      loop:
+        - /etc/nginx
+        - /var/lib/nginx
+        - /etc/postgresql
+        - /var/lib/postgresql
+        - /etc/xroad
+        - /var/lib/xroad
+        - /var/log/xroad
+        - /var/cache/xroad
+        - /var/tmp/xroad
+
+    - name: Limpiar paquetes innecesarios
+      apt:
+        autoclean: yes
+        autoremove: yes
+
+    - name: Reiniciar los servidores para asegurar un estado limpio
+      reboot:
+        msg: "Reiniciando el servidor para una instalación limpia."
+        pre_reboot_delay: 10

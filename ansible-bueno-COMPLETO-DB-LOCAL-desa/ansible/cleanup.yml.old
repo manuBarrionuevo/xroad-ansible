@@ -1,0 +1,28 @@
+---
+- name: Limpiar y preparar servidores para instalación de X-Road
+  hosts: all
+  become: yes
+
+  tasks:
+    - name: Eliminar cualquier instalación previa de Nginx, PostgreSQL y X-Road
+      apt:
+        name: "{{ item }}"
+        state: absent
+        purge: yes
+      loop:
+        - nginx
+        - postgresql
+        - xroad-base
+        - xroad-securityserver
+        - xroad-nginx
+        - xroad-signer
+
+    - name: Limpiar paquetes innecesarios
+      apt:
+        autoclean: yes
+        autoremove: yes
+
+    - name: Reiniciar el servidor si se requiere
+      reboot:
+        msg: "Reiniciando servidor para asegurar un estado limpio."
+        pre_reboot_delay: 10

@@ -1,0 +1,94 @@
+---
+- name: Clean X-Road installation from Central and Security Servers
+  hosts: cs_servers,ss_servers, #ca_servers
+  become: yes
+  tasks:
+    - name: Stop X-Road services
+      service:
+        name: "{{ item }}"
+        state: stopped
+      with_items:
+        - xroad-proxy
+        - xroad-signer
+        - xroad-jetty
+        - xroad-monitor
+        - xroad-confclient
+        - xroad-center
+      ignore_errors: yes
+
+    - name: Remove X-Road packages
+      apt:
+        name: "{{ item }}"
+        state: absent
+        purge: yes
+      with_items:
+        - xroad-proxy
+        - xroad-signer
+        - xroad-jetty
+        - xroad-monitor
+        - xroad-confclient
+        - xroad-center
+        - xroad-database-remote
+      ignore_errors: yes
+
+    - name: Remove X-Road user and group
+      user:
+        name: xroad
+        state: absent
+        remove: yes
+      ignore_errors: yes
+
+    - name: Remove X-Road configuration files
+      file:
+        path: "{{ item }}"
+        state: absent
+      with_items:
+        - /etc/xroad
+        - /var/lib/xroad
+        - /var/log/xroad
+        - /usr/share/xroad
+      ignore_errors: yes
+
+    - name: Remove PostgreSQL databases and users related to X-Road
+      postgresql_db:
+        name: "{{ item }}"
+        state: absent
+      with_items:
+        - centerui
+        - serverconf
+      ignore_errors: yes
+
+    - name: Remove PostgreSQL users related to X-Road
+      postgresql_user:
+        name: "{{ item }}"
+        state: absent
+      with_items:
+        - xroad
+        - centerui
+      ignore_errors: yes
+
+    - name: Clean up package manager caches
+      apt:
+        update_cache: no
+        autoclean: yes
+
+    - name: Clean up APT sources
+      file:
+        path: /etc/apt/sources.list.d/xroad.list
+        state: absent
+      ignore_errors: yes
+
+    - name: Perform autoremove to clean up unused packages
+      apt:
+        autoremove: yes
+        purge: yes
+      ignore_errors: yes
+
+    - name: Reboot the server
+      reboot:
+        msg: "Reboot initiated by Ansible for clean up."
+        connect_timeout: 5
+        reboot_timeout: 600
+        pre_reboot_delay: 10
+        post_reboot_delay: 30
+      ignore_errors: yes
